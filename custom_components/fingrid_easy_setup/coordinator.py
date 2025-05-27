@@ -114,18 +114,40 @@ class FingridDataUpdateCoordinator(DataUpdateCoordinator):
         """Fetch data from Fingrid API for enabled datasets."""
         data_results: dict[str, dict | None] = {}
         
-        # This will later iterate over self.enabled_dataset_ids from options
-        # For now, just dataset 209
-        tasks = {
-            dataset_id: self._async_fetch_dataset(dataset_id)
-            for dataset_id in self.enabled_dataset_ids
-        }
+        # Warn if polling interval is too short for Fingrid API limits
+        if self.update_interval.total_seconds() < 180:
+            _LOGGER.warning(
+                "Polling interval is set to less than 3 minutes. This may cause API rate limiting. "
+                "Increase the update interval in integration options."
+            )
 
-        results = await asyncio.gather(*tasks.values(), return_exceptions=True)
-        
-        auth_failure_raised = False # To ensure ConfigEntryAuthFailed is raised only once
+        # Fetch datasets sequentially with a delay to avoid rate limits
+        data_results: dict[str, dict | None] = {}
+        auth_failure_raised = False
+        for dataset_id in self.enabled_dataset_ids:
+            try:
+                result = await self._async_fetch_dataset(dataset_id)
+            except FingridApiAuthError as e:
+                _LOGGER.error("Authentication error processing dataset %s: %s", dataset_id, e)
+                if not auth_failure_raised:
+                    raise ConfigEntryAuthFailed(e) from e
+                auth_failure_raised = True
+                data_results[dataset_id] = None
+            except (FingridApiRateLimitError, FingridApiError) as e:
+                _LOGGER.warning("API error processing dataset %s: %s", dataset_id, e)
+                data_results[dataset_id] = None
+            except Exception as e:
+                _LOGGER.error("Unexpected exception for dataset %s during fetch: %s", dataset_id, e)
+                data_results[dataset_id] = None
+            else:
+                if result is not None:
+                    data_results[dataset_id] = result
+                else:
+                    _LOGGER.warning("No data returned or malformed for dataset %s after fetch.", dataset_id)
+                    data_results[dataset_id] = None
+            # Delay between requests to avoid hitting rate limits (10/minute allowed)
+            await asyncio.sleep(7)
 
-        for dataset_id, result in zip(tasks.keys(), results):
             if isinstance(result, FingridApiAuthError):
                 _LOGGER.error("Authentication error processing dataset %s: %s", dataset_id, result)
                 if not auth_failure_raised:
