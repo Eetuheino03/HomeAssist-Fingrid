@@ -20,6 +20,9 @@ CONF_ENABLED_SENSORS = "enabled_sensors"
 CONF_UPDATE_INTERVAL = "update_interval"
 
 DEFAULT_UPDATE_INTERVAL_MINUTES = 5
+
+# API Key configuration
+CONF_API_KEY = "api_key"
 DEFAULT_UPDATE_INTERVAL = timedelta(minutes=DEFAULT_UPDATE_INTERVAL_MINUTES)
 
 # Min/Max for polling interval in options flow (in minutes)

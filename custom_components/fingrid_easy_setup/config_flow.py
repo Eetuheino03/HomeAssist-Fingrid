@@ -18,12 +18,13 @@ from .const import (
     MIN_UPDATE_INTERVAL_MINUTES,
     MAX_UPDATE_INTERVAL_MINUTES,
     DATASET_ID_POWER_SYSTEM_STATE,
+    CONF_API_KEY,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 DATA_SCHEMA = vol.Schema({
-    vol.Required("api_key"): str,
+    vol.Required(CONF_API_KEY): str,
 })
 
 class FingridEasySetupConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -35,7 +36,7 @@ class FingridEasySetupConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle the initial step."""
         errors = {}
         if user_input is not None:
-            api_key = user_input["api_key"]
+            api_key = user_input[CONF_API_KEY]
             session = async_get_clientsession(self.hass)
             headers = {"x-api-key": api_key, "Accept": "application/json"}
             # Using dataset 209 for validation as per blueprint
