@@ -74,14 +74,18 @@ class FingridDataUpdateCoordinator(DataUpdateCoordinator):
         try:
             async with self.session.get(url, headers=headers, params=params, timeout=20) as response:
                 if response.status == 200:
-                    api_data_array = await response.json()
-                    if api_data_array and isinstance(api_data_array, list):
-                        # Assuming latest value is the first item if sorted by API or single item due to pageSize=1
-                        latest_entry = api_data_array[0]
+                    api_response = await response.json()
+                    # Expecting a dict with a 'data' key containing a list
+                    if (
+                        isinstance(api_response, dict)
+                        and "data" in api_response
+                        and isinstance(api_response["data"], list)
+                        and len(api_response["data"]) > 0
+                    ):
+                        latest_entry = api_response["data"][0]
                         _LOGGER.debug("Successfully fetched dataset %s: %s", dataset_id, latest_entry)
-                        # We expect a dictionary like {"value": ..., "startTime": ..., "endTime": ...}
-                        return latest_entry 
-                    _LOGGER.warning("No data or unexpected format for dataset %s: %s", dataset_id, api_data_array)
+                        return latest_entry
+                    _LOGGER.warning("No data or unexpected format for dataset %s: %s", dataset_id, api_response)
                     return None
                 if response.status in [401, 403]:
                     _LOGGER.error("Authentication error for dataset %s: %s", dataset_id, response.status)
