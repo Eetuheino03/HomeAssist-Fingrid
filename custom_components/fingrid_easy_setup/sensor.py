@@ -148,18 +148,15 @@ class FingridPowerSystemStateSensor(FingridSensor):
 
     def _update_state(self, dataset_data: dict[str, Any]) -> None:
         """Update the sensor's state and attributes."""
-        super()._update_state(dataset_data) # Sets native_value and api_timestamp
-
+        # Set the mapped description as the state, not the raw number
         current_value = dataset_data.get("value")
-        if isinstance(current_value, (int, float)): # Ensure it's a number before mapping
+        if isinstance(current_value, (int, float)):
             numeric_value = int(current_value)
             description = POWER_SYSTEM_STATE_MAP.get(numeric_value, POWER_SYSTEM_STATE_UNKNOWN)
-            self._attr_extra_state_attributes["description"] = description
-            # Optionally, update icon based on state
-            # if numeric_value == 1: self.entity_description.icon = "mdi:power-plug"
-            # else: self.entity_description.icon = "mdi:power-plug-off"
+            self._attr_native_value = description
+            self._attr_extra_state_attributes["raw_value"] = numeric_value
         else:
-            self._attr_extra_state_attributes["description"] = POWER_SYSTEM_STATE_UNKNOWN
+            self._attr_native_value = POWER_SYSTEM_STATE_UNKNOWN
 
 
 class FingridGridFrequencySensor(FingridSensor):
@@ -204,17 +201,17 @@ class FingridElectricityShortageSensor(FingridSensor):
 
     def _update_state(self, dataset_data: dict[str, Any]) -> None:
         """Update the sensor's state and attributes."""
-        super()._update_state(dataset_data) # Sets native_value and api_timestamp
-        
+        # Set the mapped description as the state, not the raw number
         current_value = dataset_data.get("value")
         if isinstance(current_value, (int, float)):
             numeric_value = int(current_value)
             description_text = ELECTRICITY_SHORTAGE_STATUS_MAP.get(
                 numeric_value, ELECTRICITY_SHORTAGE_STATUS_UNKNOWN
             )
-            self._attr_extra_state_attributes["description"] = description_text
+            self._attr_native_value = description_text
+            self._attr_extra_state_attributes["raw_value"] = numeric_value
         else:
-            self._attr_extra_state_attributes["description"] = ELECTRICITY_SHORTAGE_STATUS_UNKNOWN
+            self._attr_native_value = ELECTRICITY_SHORTAGE_STATUS_UNKNOWN
 
 
 async def async_setup_entry(
