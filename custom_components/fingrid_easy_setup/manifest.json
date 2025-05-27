@@ -1,0 +1,12 @@
+{
+  "domain": "fingrid_easy_setup",
+  "name": "Fingrid Easy Setup",
+  "documentation": "URL_TO_YOUR_GITHUB_REPO_README_LATER",
+  "issue_tracker": "URL_TO_YOUR_GITHUB_ISSUES_LATER",
+  "codeowners": ["YOUR_GITHUB_USERNAME_LATER"],
+  "version": "0.1.0",
+  "requirements": [],
+  "iot_class": "cloud_polling",
+  "config_flow": true,
+  "integration_type": "service"
+}

@@ -1,0 +1,38 @@
+{
+    "config": {
+        "title": "Fingrid Easy Setup",
+        "step": {
+            "user": {
+                "title": "Connect to Fingrid Open Data",
+                "description": "Enter your Fingrid Open Data API key. You can obtain one from the Fingrid website.",
+                "data": {
+                    "api_key": "Fingrid API Key"
+                }
+            }
+        },
+        "error": {
+            "invalid_api_key": "Invalid API key. Please check your key and try again.",
+            "cannot_connect": "Unable to connect to Fingrid API. Check your internet connection and Fingrid service status.",
+            "auth_error": "Authentication error. This might be an invalid API key or permission issue.",
+            "unknown": "An unknown error occurred. Please try again."
+        },
+        "abort": {
+            "already_configured": "This Fingrid API key is already configured."
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Fingrid Integration Options",
+                "description": "Select the Fingrid sensors to enable and configure the update frequency.",
+                "data": {
+                    "enabled_sensors": "Enabled Sensors",
+                    "update_interval": "Update Interval (minutes)"
+                }
+            }
+        },
+        "error": {
+        },
+        "abort": {}
+    }
+}
